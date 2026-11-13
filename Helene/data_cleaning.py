@@ -33,6 +33,25 @@ def extract_product(soup):
 # créer la colonne pour tous les produits
 sample_clean["products"] = html.apply(extract_product)
 
+def extract_advantages(soup):
+    text = soup.get_text(" ", strip=True)
+
+    parts = re.split(r"\s+-\s+", text, maxsplit=1)
+    if len(parts) < 2:
+        return None
+
+    avantages = re.split(
+        r"\bWeight\s*:",
+        parts[1],
+        maxsplit=1,
+        flags=re.I
+    )[0]
+
+    return avantages.strip()
+
+# créer la colonne pour tous les produits
+sample_clean["advantages"] = html.apply(extract_advantages)
+
 def extract_description(soup):
     """Fetch text before first balise <br> ou <b>."""
     chunks = []
