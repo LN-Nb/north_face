@@ -10,7 +10,7 @@ from sklearn.model_selection import ParameterGrid
 from bs4 import BeautifulSoup
 import re
 
-data = pd.read_csv('/Users/nicolasbour/Desktop/Projets_IA/Projets_certif/bloc_03_Machine_Learning/03_the_north_face/sample-data.csv')
+data = pd.read_csv('../data/raw/sample-data.csv')
 
 sample = data #.sample(n=5, random_state=42)
 
@@ -109,4 +109,4 @@ for col in ["description_texte", "details", "fabric", "weight"]:
 
 sample_clean.drop(columns=["description"], inplace=True)
 
-sample_clean.to_csv('/Users/nicolasbour/Desktop/Projets_IA/Projets_certif/bloc_03_Machine_Learning/03_the_north_face/Nico/sample_clean.csv', index=False)
+sample_clean.to_csv('../data/processed/sample_clean.csv', index=False)
