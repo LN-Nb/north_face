@@ -41,7 +41,7 @@ def extract_advantages(soup):
         return None
 
     avantages = re.split(
-        r"\bWeight\s*:",
+        r"\bFabric\s*:",
         parts[1],
         maxsplit=1,
         flags=re.I
@@ -49,7 +49,7 @@ def extract_advantages(soup):
 
     return avantages.strip()
 
-# créer la colonne pour tous les produits
+# créer la colonne pour tous les avantages
 sample_clean["advantages"] = html.apply(extract_advantages)
 
 def extract_description(soup):
@@ -140,4 +140,4 @@ for col in ["description_text", "details", "fabric", "weight"]:
 
 sample_clean.drop(columns=["description"], inplace=True)
 
-sample_clean.to_csv(r'C:\Users\LN\Documents\Jedha\Projets\NORTH_FACE\Helene\sample_clean.csv', index=False)
+sample_clean.to_csv(r'C:\Users\LN\Documents\Jedha\Projets\NORTH_FACE\Helene\data\sample_clean.csv', index=False)
