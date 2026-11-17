@@ -40,13 +40,20 @@ def extract_advantages(soup):
     if len(parts) < 2:
         return None
 
-    avantages = re.split(
-        r"\bFabric\s*:",
-        parts[1],
-        maxsplit=1,
-        flags=re.I
-    )[0]
+    # avantages = re.split(
+    #     r"\bFabric\s*:",
+    #     parts[1],
+    #     maxsplit=1,
+    #     flags=re.I
+    # )[0]
 
+    avantages = re.split(
+    r"\b(?:Details|Fabric)\s*:",
+    parts[1],
+    maxsplit=1,
+    flags=re.I
+)[0]
+    
     return avantages.strip()
 
 # créer la colonne pour tous les avantages
