@@ -21,6 +21,44 @@ html = sample_clean["description"].fillna("").apply(
     lambda texte: BeautifulSoup(texte, "html.parser")
 )
 
+def extract_product(soup):
+    # prendre la 1ère phrase 
+    text = soup.get_text(" ", strip=True)
+
+    # Couper au premier tiret entouré d'espaces
+    parts = re.split(r"\s+-\s+", text, maxsplit=1)
+
+    return parts[0].strip()
+
+# créer la colonne pour tous les produits
+sample_clean["products"] = html.apply(extract_product)
+
+def extract_advantages(soup):
+    text = soup.get_text(" ", strip=True)
+
+    parts = re.split(r"\s+-\s+", text, maxsplit=1)
+    if len(parts) < 2:
+        return None
+
+    # avantages = re.split(
+    #     r"\bFabric\s*:",
+    #     parts[1],
+    #     maxsplit=1,
+    #     flags=re.I
+    # )[0]
+
+    avantages = re.split(
+    r"\b(?:Details|Fabric)\s*:",
+    parts[1],
+    maxsplit=1,
+    flags=re.I
+)[0]
+    
+    return avantages.strip()
+
+# créer la colonne pour tous les avantages
+sample_clean["advantages"] = html.apply(extract_advantages)
+
 def extraire_description(soup):
     """Récupérer le texte avant la première balise <br> ou <b>."""
     morceaux = []
