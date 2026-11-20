@@ -10,7 +10,7 @@ from sklearn.model_selection import ParameterGrid
 from bs4 import BeautifulSoup
 import re
 
-data = pd.read_csv(r'C:\Users\LN\Documents\Jedha\Projets\NORTH_FACE\Helene\data.csv')
+data = pd.read_csv(r'C:\Users\LN\Documents\Jedha\Projets\NORTH_FACE\Helene\data\raw.csv')
 
 sample = data #.sample(n=5, random_state=42)
 
@@ -21,17 +21,55 @@ html = sample_clean["description"].fillna("").apply(
     lambda text: BeautifulSoup(text, "html.parser")
 )
 
+def extract_product(soup):
+    # prendre la 1ère phrase 
+    text = soup.get_text(" ", strip=True)
+
+    # Couper au premier tiret entouré d'espaces
+    parts = re.split(r"\s+-\s+", text, maxsplit=1)
+
+    return parts[0].strip()
+
+# créer la colonne pour tous les produits
+sample_clean["products"] = html.apply(extract_product)
+
+def extract_advantages(soup):
+    text = soup.get_text(" ", strip=True)
+
+    parts = re.split(r"\s+-\s+", text, maxsplit=1)
+    if len(parts) < 2:
+        return None
+
+    # avantages = re.split(
+    #     r"\bFabric\s*:",
+    #     parts[1],
+    #     maxsplit=1,
+    #     flags=re.I
+    # )[0]
+
+    avantages = re.split(
+    r"\b(?:Details|Fabric)\s*:",
+    parts[1],
+    maxsplit=1,
+    flags=re.I
+)[0]
+    
+    return avantages.strip()
+
+# créer la colonne pour tous les avantages
+sample_clean["advantages"] = html.apply(extract_advantages)
+
 def extract_description(soup):
     """Fetch text before first balise <br> ou <b>."""
-    pieces = []
+    chunks = []
 
     for element in soup.contents:
         if element.name in ["br", "b"]:
             break
 
-        pieces.append(str(element))
+        chunks.append(str(element))
 
-    text_html = " ".join(pieces)
+    text_html = " ".join(chunks)
     return BeautifulSoup(text_html, "html.parser").get_text(" ", strip=True)
 
 
@@ -39,12 +77,12 @@ sample_clean["description_text"] = html.apply(extract_description)
 
 def extract_details(soup):
     """Fetch list details."""
-    titre = soup.find("b", string=re.compile(r"^\s*Details\s*:\s*$", re.I))
+    title = soup.find("b", string=re.compile(r"^\s*Details\s*:\s*$", re.I))
 
-    if titre is None:
+    if title is None:
         return []
 
-    list = titre.find_next_sibling()
+    list = title.find_next_sibling()
 
     if list is None or list.name != "ul":
         return []
@@ -61,21 +99,21 @@ sample_clean["details"] = html.apply(extract_details)
 
 def extract_value(soup, nom):
     """Fetch text after bold titles"""
-    motif = rf"^\s*{re.escape(nom)}\s*:\s*$"
-    titre = soup.find("b", string=re.compile(motif, re.I))
+    pattern = rf"^\s*{re.escape(nom)}\s*:\s*$"
+    title = soup.find("b", string=re.compile(pattern, re.I))
 
-    if titre is None:
+    if title is None:
         return None
 
-    morceaux = []
+    chunks = []
 
-    for element in titre.next_siblings:
+    for element in title.next_siblings:
         if element.name in ["br", "b"]:
             break
 
-        morceaux.append(str(element))
+        chunks.append(str(element))
 
-    text_html = " ".join(morceaux)
+    text_html = " ".join(chunks)
     return BeautifulSoup(text_html, "html.parser").get_text(" ", strip=True)
 
 
@@ -91,10 +129,10 @@ def extract_country(soup):
     return None
 
 
-sample_clean["pays"] = html.apply(extract_country)
+sample_clean["country"] = html.apply(extract_country)
 
 sample_clean["details"] = sample_clean["details"].apply(
-    lambda liste: " ".join(liste)
+    lambda list: " ".join(list)
 )
 
 def clean_text(text):
@@ -109,4 +147,4 @@ for col in ["description_text", "details", "fabric", "weight"]:
 
 sample_clean.drop(columns=["description"], inplace=True)
 
-sample_clean.to_csv(r'C:\Users\LN\Documents\Jedha\Projets\NORTH_FACE\Helene\sample_clean.csv', index=False)
+sample_clean.to_csv(r'C:\Users\LN\Documents\Jedha\Projets\NORTH_FACE\Helene\data\sample_clean.csv', index=False)
