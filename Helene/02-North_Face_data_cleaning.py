@@ -92,7 +92,7 @@ def extract_details(soup):
     for element in list.find_all("li"):
         details.append(element.get_text(" ", strip=True))
 
-    return details
+    return details.lower()
 
 
 sample_clean["details"] = html.apply(extract_details)
@@ -126,9 +126,6 @@ def extract_country(soup):
         if text.lower().startswith("made in "):
             return text[8:].strip().rstrip(".")
 
-    return None
-
-
 sample_clean["country"] = html.apply(extract_country)
 
 sample_clean["details"] = sample_clean["details"].apply(
@@ -143,7 +140,7 @@ def clean_text(text):
 for col in ["description_text", "details", "fabric", "weight"]:
     sample_clean[col] = sample_clean[col].apply(
         lambda text: clean_text(text) if pd.notna(text) else text
-    )
+    ) 
 
 sample_clean.drop(columns=["description"], inplace=True)
 
